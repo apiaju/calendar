@@ -1,0 +1,66 @@
+{
+  "name": "@apiaju/calendar",
+  "version": "1.0.0",
+  "description": "Calendário de feriados de Aracaju-SE. Feriados nacionais, estaduais e municipais com suporte a timezone e dias úteis.",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsup",
+    "prepublishOnly": "npm run build",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "keywords": [
+    "aracaju",
+    "sergipe",
+    "brasil",
+    "brazil",
+    "feriados",
+    "holidays",
+    "calendar",
+    "dias-uteis",
+    "business-days",
+    "apiaju"
+  ],
+  "author": {
+    "name": "Wolney Oliveira",
+    "email": "hi@wolney.dev",
+    "url": "https://www.wolney.dev"
+  },
+  "license": "MIT",
+  "private": false,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/apiaju/calendar.git"
+  },
+  "bugs": {
+    "url": "https://github.com/apiaju/calendar/issues"
+  },
+  "homepage": "https://github.com/apiaju/calendar#readme",
+  "engines": {
+    "node": ">=18"
+  },
+  "devDependencies": {
+    "tsup": "^8.5.1",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.18"
+  }
+}
