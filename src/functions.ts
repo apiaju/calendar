@@ -1,4 +1,4 @@
-import type { Holiday, BusinessDayOptions } from './types'
+import type { Holiday, BusinessDayOptions, GetHolidaysOptions } from './types'
 import { getHolidaysForYear } from './holidays'
 import { toAracajuDate, isWeekend, makeAracajuDate } from './utils'
 
@@ -31,9 +31,30 @@ export function getHoliday(date: Date = new Date()): Holiday | null {
   return findHoliday(date)
 }
 
-export function getHolidays(year?: number): Holiday[] {
-  const y = year ?? toAracajuDate(new Date()).year
-  return getHolidaysForYear(y)
+export function getHolidays(year?: number): Holiday[]
+export function getHolidays(options: GetHolidaysOptions): Holiday[]
+export function getHolidays(yearOrOptions?: number | GetHolidaysOptions): Holiday[] {
+  if (yearOrOptions === undefined || typeof yearOrOptions === 'number') {
+    const y = yearOrOptions ?? toAracajuDate(new Date()).year
+    return getHolidaysForYear(y)
+  }
+
+  const { start, end } = yearOrOptions
+  const s = toAracajuDate(start)
+  const e = toAracajuDate(end)
+  const startMs = makeAracajuDate(s.year, s.month, s.day).getTime()
+  const endMs   = makeAracajuDate(e.year, e.month, e.day).getTime()
+
+  if (startMs > endMs) return []
+
+  const result: Holiday[] = []
+  for (let y = s.year; y <= e.year; y++) {
+    for (const h of getHolidaysForYear(y)) {
+      const t = h.date.getTime()
+      if (t >= startMs && t <= endMs) result.push(h)
+    }
+  }
+  return result
 }
 
 export function isBusinessDay(date: Date = new Date(), options?: BusinessDayOptions): boolean {

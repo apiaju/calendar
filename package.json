@@ -1,6 +1,6 @@
 {
   "name": "@apiaju/calendar",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Calendário de feriados de Aracaju-SE. Feriados nacionais, estaduais e municipais com suporte a timezone e dias úteis.",
   "type": "module",
   "main": "./dist/index.cjs",

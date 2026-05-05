@@ -1,4 +1,4 @@
-export type { Holiday, HolidayType, HolidayLevel, BusinessDayOptions } from './types'
+export type { Holiday, HolidayType, HolidayLevel, BusinessDayOptions, GetHolidaysOptions } from './types'
 export {
   isHoliday,
   isOptionalHoliday,
