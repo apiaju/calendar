@@ -12,3 +12,8 @@ export interface Holiday {
 export interface BusinessDayOptions {
   saturdayIsBusinessDay?: boolean
 }
+
+export interface GetHolidaysOptions {
+  start: Date
+  end: Date
+}

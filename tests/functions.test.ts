@@ -71,6 +71,94 @@ describe('getHolidays', () => {
   })
 })
 
+describe('getHolidays with date range', () => {
+  it('returns holidays within a single-year range', () => {
+    // 2025: Sexta-feira Santa (4/18), Tiradentes (4/21), Dia do Trabalho (5/1),
+    // Corpus Christi (6/19), São João (6/24) = 5 holidays
+    const result = getHolidays({ start: makeAracajuDate(2025, 4, 1), end: makeAracajuDate(2025, 6, 30) })
+    expect(result).toHaveLength(5)
+    const names = result.map((h) => h.name)
+    expect(names).toContain('Sexta-feira Santa')
+    expect(names).toContain('Tiradentes')
+    expect(names).toContain('Dia do Trabalho')
+    expect(names).toContain('Corpus Christi')
+    expect(names).toContain('São João')
+  })
+
+  it('includes holidays exactly on start and end bounds (inclusive)', () => {
+    // Dia do Trabalho 2025 = May 1; São João 2025 = June 24
+    const result = getHolidays({ start: makeAracajuDate(2025, 5, 1), end: makeAracajuDate(2025, 6, 24) })
+    const names = result.map((h) => h.name)
+    expect(names).toContain('Dia do Trabalho')
+    expect(names).toContain('São João')
+  })
+
+  it('returns holidays across a cross-year range', () => {
+    // 2024: Nossa Sra. da Conceição (12/8), Natal (12/25)
+    // 2025: Confraternização Universal (1/1)
+    const result = getHolidays({ start: makeAracajuDate(2024, 12, 1), end: makeAracajuDate(2025, 1, 31) })
+    expect(result).toHaveLength(3)
+    const names = result.map((h) => h.name)
+    expect(names).toContain('Nossa Sra. da Conceição')
+    expect(names).toContain('Natal')
+    expect(names).toContain('Confraternização Universal')
+  })
+
+  it('returns result sorted by date for cross-year ranges', () => {
+    const result = getHolidays({ start: makeAracajuDate(2024, 12, 1), end: makeAracajuDate(2025, 1, 31) })
+    for (let i = 1; i < result.length; i++) {
+      expect(result[i].date.getTime()).toBeGreaterThanOrEqual(result[i - 1].date.getTime())
+    }
+  })
+
+  it('returns empty array when range contains no holidays', () => {
+    // 2025-03-11 to 2025-03-16 — Carnaval acabou (3/3–3/4); próximo é Aniversário de Aracaju (3/17)
+    const result = getHolidays({ start: makeAracajuDate(2025, 3, 11), end: makeAracajuDate(2025, 3, 16) })
+    expect(result).toHaveLength(0)
+  })
+
+  it('returns empty array when start is after end', () => {
+    const result = getHolidays({ start: makeAracajuDate(2025, 6, 1), end: makeAracajuDate(2025, 3, 1) })
+    expect(result).toHaveLength(0)
+  })
+
+  it('returns a single holiday when range is one day and it is a holiday', () => {
+    const result = getHolidays({ start: makeAracajuDate(2025, 12, 25), end: makeAracajuDate(2025, 12, 25) })
+    expect(result).toHaveLength(1)
+    expect(result[0].name).toBe('Natal')
+  })
+
+  it('returns empty array when range is one day and it is not a holiday', () => {
+    const result = getHolidays({ start: makeAracajuDate(2025, 3, 10), end: makeAracajuDate(2025, 3, 10) })
+    expect(result).toHaveLength(0)
+  })
+
+  it('normalizes UTC date input via toAracajuDate', () => {
+    // 2025-01-01T03:00:00Z = 2025-01-01 00:00 Aracaju — inclui Confraternização
+    const startUTC = new Date('2025-01-01T03:00:00Z')
+    const endUTC   = new Date('2025-01-01T03:00:00Z')
+    const result = getHolidays({ start: startUTC, end: endUTC })
+    expect(result).toHaveLength(1)
+    expect(result[0].name).toBe('Confraternização Universal')
+  })
+
+  it('does not include holiday when UTC midnight resolves to previous Aracaju day', () => {
+    // 2025-01-01T00:00:00Z = 2024-12-31 21:00 Aracaju — Dec 31 não é feriado
+    const startUTC = new Date('2025-01-01T00:00:00Z')
+    const endUTC   = new Date('2025-01-01T00:00:00Z')
+    const result = getHolidays({ start: startUTC, end: endUTC })
+    expect(result).toHaveLength(0)
+  })
+
+  it('backward compat: numeric year still works', () => {
+    expect(getHolidays(2025)).toHaveLength(17)
+  })
+
+  it('backward compat: no argument still works', () => {
+    expect(Array.isArray(getHolidays())).toBe(true)
+  })
+})
+
 describe('isBusinessDay', () => {
   it('returns true for a regular weekday', () => {
     // 2025-03-10 Monday, not a holiday
